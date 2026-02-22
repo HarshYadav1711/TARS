@@ -21,4 +21,9 @@ export const api = {
     send: undefined as any,
     list: undefined as any,
   },
+  typing: {
+    set: undefined as any,
+    stop: undefined as any,
+    list: undefined as any,
+  },
 };

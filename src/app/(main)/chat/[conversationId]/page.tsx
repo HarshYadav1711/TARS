@@ -24,18 +24,61 @@ export default function ChatPage() {
     conversationId ? { conversationId } : "skip"
   );
   const sendMessage = useMutation(api.messages.send);
+  const setTyping = useMutation(api.typing.set);
+  const stopTyping = useMutation(api.typing.stop);
+  const typingUserIds = useQuery(
+    api.typing.list,
+    conversationId ? { conversationId } : "skip"
+  );
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
   const listEndRef = useRef<HTMLLIElement>(null);
+  const stopTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     listEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages?.length]);
 
+  useEffect(() => {
+    if (!conversationId) return;
+    if (setTypingTimeoutRef.current) clearTimeout(setTypingTimeoutRef.current);
+    if (stopTypingTimeoutRef.current) {
+      clearTimeout(stopTypingTimeoutRef.current);
+      stopTypingTimeoutRef.current = null;
+    }
+    if (!body.trim()) {
+      stopTyping({ conversationId }).catch(() => {});
+      return;
+    }
+    setTypingTimeoutRef.current = setTimeout(() => {
+      setTyping({ conversationId }).catch(() => {});
+      setTypingTimeoutRef.current = null;
+    }, 300);
+    stopTypingTimeoutRef.current = setTimeout(() => {
+      stopTyping({ conversationId }).catch(() => {});
+      stopTypingTimeoutRef.current = null;
+    }, 2_000);
+    return () => {
+      if (setTypingTimeoutRef.current) clearTimeout(setTypingTimeoutRef.current);
+      if (stopTypingTimeoutRef.current)
+        clearTimeout(stopTypingTimeoutRef.current);
+    };
+  }, [conversationId, body, setTyping, stopTyping]);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     const text = body.trim();
     if (!text || !conversationId || sending) return;
+    if (stopTypingTimeoutRef.current) {
+      clearTimeout(stopTypingTimeoutRef.current);
+      stopTypingTimeoutRef.current = null;
+    }
+    if (setTypingTimeoutRef.current) {
+      clearTimeout(setTypingTimeoutRef.current);
+      setTypingTimeoutRef.current = null;
+    }
+    stopTyping({ conversationId }).catch(() => {});
     setSending(true);
     setBody("");
     try {
@@ -65,6 +108,10 @@ export default function ChatPage() {
   }
 
   const { otherUser } = data;
+  const otherIsTyping =
+    Array.isArray(typingUserIds) &&
+    otherUser.clerkId !== undefined &&
+    (typingUserIds as string[]).includes(otherUser.clerkId);
 
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
@@ -83,6 +130,11 @@ export default function ChatPage() {
       </div>
 
       <ul className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
+        {otherIsTyping && (
+          <li className="text-xs text-muted-foreground">
+            {otherUser.name} is typing…
+          </li>
+        )}
         {messages.length === 0 && (
           <li className="flex flex-1 flex-col items-center justify-center py-12">
             <div className="flex max-w-xs flex-col gap-2 rounded-lg border border-border bg-muted/30 px-6 py-8 text-center">

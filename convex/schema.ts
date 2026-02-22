@@ -24,4 +24,12 @@ export default defineSchema({
     body: v.string(),
     createdAt: v.number(),
   }).index("by_conversation", ["conversationId"]),
+
+  typing: defineTable({
+    conversationId: v.id("conversations"),
+    clerkId: v.string(),
+    updatedAt: v.number(),
+  })
+    .index("by_conversation", ["conversationId"])
+    .index("by_conversation_clerk", ["conversationId", "clerkId"]),
 });

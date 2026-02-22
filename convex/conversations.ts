@@ -63,11 +63,17 @@ export const getWithOtherUser = query({
       conversation: conv,
       otherUser: otherUser
         ? {
+            clerkId: otherUser.clerkId,
             name: otherUser.name,
             imageUrl: otherUser.imageUrl,
             lastSeenAt: otherUser.lastSeenAt,
           }
-        : { name: "Unknown", imageUrl: undefined, lastSeenAt: undefined },
+        : {
+            clerkId: otherClerkId,
+            name: "Unknown",
+            imageUrl: undefined,
+            lastSeenAt: undefined,
+          },
     };
   },
 });
