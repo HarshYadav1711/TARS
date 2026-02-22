@@ -1,46 +1,127 @@
 # TARS Chat
 
-One-to-one real-time chat app: Next.js (App Router), TypeScript, Convex, Clerk, Tailwind CSS, shadcn/ui.
+A real-time one-to-one chat application built for the TARS Full Stack Engineer Internship coding challenge.
 
-## Setup
+## Project overview
 
-1. **Install dependencies**
+TARS Chat lets users sign up, sign in, and send messages in private conversations. Features include:
 
-   ```bash
-   npm install
-   ```
+- **Authentication** (Clerk): sign up, sign in, sign out; user profile synced to Convex on first login
+- **User discovery**: list of registered users (excluding yourself) with search by name
+- **Conversations**: create or open a 1:1 conversation; messages stored in Convex and shown in real time
+- **Conversation list**: recent conversations with last message preview and unread count
+- **Typing indicators**: “User is typing…” when the other participant is typing
+- **Online status**: green dot for users active in the last 90 seconds
+- **Smart auto-scroll**: new messages auto-scroll only when you’re near the bottom; otherwise a “New messages” button appears
 
-2. **Environment variables**
+All of this runs on free tiers (no credit card required).
 
-   Copy `.env.example` to `.env.local` and fill in values:
+## Tech stack
 
-   | Variable | Description |
-   |----------|-------------|
-   | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | From [Clerk Dashboard](https://dashboard.clerk.com). Required for auth. |
-   | `CLERK_SECRET_KEY` | From Clerk Dashboard. Required for auth. |
-   | `NEXT_PUBLIC_CONVEX_URL` | Set by running `npx convex dev` once. Required for Convex. |
+| Layer        | Technology |
+|-------------|------------|
+| Framework   | Next.js 16 (App Router) |
+| Language    | TypeScript |
+| Database & realtime | Convex |
+| Auth        | Clerk |
+| Styling     | Tailwind CSS v4 |
+| UI components | shadcn/ui (new-york, minimal set) |
 
-   The app runs without these; add them when you need authentication and Convex.
+## Local setup
 
-3. **Convex** (optional for first run)
+### Prerequisites
+
+- Node.js 18+
+- npm (or yarn/pnpm)
+
+### 1. Install dependencies
+
+```bash
+npm install
+```
+
+### 2. Environment variables
+
+Copy `.env.example` to `.env.local` and fill in values as you add services:
+
+| Variable | Description |
+|----------|-------------|
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | From [Clerk Dashboard](https://dashboard.clerk.com) → API Keys. Required for auth. |
+| `CLERK_SECRET_KEY` | From Clerk Dashboard → API Keys. Required for auth. |
+| `NEXT_PUBLIC_CONVEX_URL` | From Convex (see step 3). Required for database and realtime. |
+
+The app will run without these; add them when you need auth and Convex.
+
+### 3. Convex (database and realtime)
+
+1. Run once to create a Convex project and get your deployment URL:
 
    ```bash
    npx convex dev
    ```
 
-   Log in or use anonymous dev, then use the generated URL in `.env.local` as `NEXT_PUBLIC_CONVEX_URL`.
+2. When prompted, log in (or use anonymous dev). Convex will create a `convex/` folder and add a deployment URL to `.env.local` as `NEXT_PUBLIC_CONVEX_URL`. Keep `npx convex dev` running in a separate terminal while developing so Convex stays in sync.
 
-4. **Run the app**
+3. **Clerk + Convex auth:** In the [Clerk Dashboard](https://dashboard.clerk.com), go to **JWT Templates** → create a template from the **Convex** preset (name must stay `convex`). Copy the **Issuer URL**. In the [Convex Dashboard](https://dashboard.convex.dev) → your project → **Settings** → **Environment Variables**, add:
+   - Name: `CLERK_JWT_ISSUER_DOMAIN`
+   - Value: the Issuer URL (e.g. `https://your-issuer.clerk.accounts.dev`)
+
+### 4. Run the app
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000). Sign up or sign in, then start a conversation from the user list.
+
+### Scripts
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Production build |
+| `npm run start` | Run production build locally |
+| `npm run lint` | Run ESLint |
+
+## Deployment notes
+
+### Vercel (recommended)
+
+1. **Push your code** to GitHub (or GitLab/Bitbucket).
+
+2. **Import the project** in [Vercel](https://vercel.com): New Project → Import the repo. Use the default “Next.js” preset and root directory.
+
+3. **Environment variables** (Vercel project → Settings → Environment Variables). Add the same variables as in `.env.local`:
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+   - `NEXT_PUBLIC_CONVEX_URL`
+
+   For production, use production keys and the production Convex deployment URL (from `npx convex deploy` or Convex Dashboard).
+
+4. **Clerk production URLs:** In Clerk Dashboard → your application → **Domains**, add your Vercel URL (e.g. `https://your-app.vercel.app`). In **Paths** (or **URLs**), set Sign-in and Sign-up URLs if you use custom paths (e.g. `/sign-in`, `/sign-up`).
+
+5. **Convex production:** From your repo (with Convex configured):
 
    ```bash
-   npm run dev
+   npx convex deploy
    ```
 
-   Open [http://localhost:3000](http://localhost:3000).
+   Use the production Convex URL as `NEXT_PUBLIC_CONVEX_URL` in Vercel. Ensure `CLERK_JWT_ISSUER_DOMAIN` is set in the Convex Dashboard for the production deployment if you use Clerk auth.
 
-## Scripts
+6. **Deploy:** Vercel will build and deploy. Subsequent pushes to the main branch trigger new deployments.
 
-- `npm run dev` – development server
-- `npm run build` – production build
-- `npm run start` – run production build
-- `npm run lint` – run ESLint
+### Build
+
+The app builds with:
+
+```bash
+npm run build
+```
+
+No extra build step is required for Vercel; the default Next.js build is used.
+
+### Free tier usage
+
+- **Vercel**: Hobby plan is free for personal use.
+- **Clerk**: Free tier includes monthly active users (MAU) and standard auth features.
+- **Convex**: Free tier includes a generous usage quota for development and small production apps.
