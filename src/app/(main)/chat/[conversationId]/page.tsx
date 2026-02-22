@@ -24,6 +24,7 @@ export default function ChatPage() {
     conversationId ? { conversationId } : "skip"
   );
   const sendMessage = useMutation(api.messages.send);
+  const markRead = useMutation(api.reads.markRead);
   const setTyping = useMutation(api.typing.set);
   const stopTyping = useMutation(api.typing.stop);
   const typingUserIds = useQuery(
@@ -35,6 +36,10 @@ export default function ChatPage() {
   const listEndRef = useRef<HTMLLIElement>(null);
   const stopTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (conversationId) markRead({ conversationId }).catch(() => {});
+  }, [conversationId, markRead]);
 
   useEffect(() => {
     listEndRef.current?.scrollIntoView({ behavior: "smooth" });

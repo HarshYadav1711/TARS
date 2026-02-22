@@ -32,4 +32,10 @@ export default defineSchema({
   })
     .index("by_conversation", ["conversationId"])
     .index("by_conversation_clerk", ["conversationId", "clerkId"]),
+
+  reads: defineTable({
+    conversationId: v.id("conversations"),
+    clerkId: v.string(),
+    lastReadAt: v.number(),
+  }).index("by_conversation_clerk", ["conversationId", "clerkId"]),
 });

@@ -15,6 +15,7 @@ type ConversationItem = {
   };
   lastMessageText?: string;
   lastMessageAt: number;
+  unreadCount: number;
 };
 
 function formatTime(ts: number): string {
@@ -91,6 +92,14 @@ export function ConversationList() {
                   <span className="truncate text-sm font-medium text-foreground">
                     {conv.otherUser.name}
                   </span>
+                  {conv.unreadCount > 0 && (
+                    <span
+                      className="flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-primary px-1.5 text-xs font-medium text-primary-foreground"
+                      aria-label={`${conv.unreadCount} unread`}
+                    >
+                      {conv.unreadCount > 99 ? "99+" : conv.unreadCount}
+                    </span>
+                  )}
                 </span>
                 <span className="shrink-0 text-xs text-muted-foreground">
                   {formatTime(conv.lastMessageAt)}

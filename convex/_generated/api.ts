@@ -26,4 +26,7 @@ export const api = {
     stop: undefined as any,
     list: undefined as any,
   },
+  reads: {
+    markRead: undefined as any,
+  },
 };

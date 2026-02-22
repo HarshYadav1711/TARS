@@ -89,10 +89,20 @@ export const listForCurrentUser = query({
       (c) => c.participant1 === myClerkId || c.participant2 === myClerkId
     );
     const users = await ctx.db.query("users").collect();
+    const reads = await ctx.db.query("reads").collect();
+    const messages = await ctx.db.query("messages").collect();
     const result = mine.map((conv) => {
       const otherClerkId =
         conv.participant1 === myClerkId ? conv.participant2 : conv.participant1;
       const otherUser = users.find((u) => u.clerkId === otherClerkId);
+      const read = reads.find(
+        (r) => r.conversationId === conv._id && r.clerkId === myClerkId
+      );
+      const lastReadAt = read?.lastReadAt ?? 0;
+      const convMessages = messages.filter(
+        (m) => m.conversationId === conv._id && m.authorClerkId !== myClerkId && m.createdAt > lastReadAt
+      );
+      const unreadCount = convMessages.length;
       return {
         _id: conv._id,
         otherUser: otherUser
@@ -110,6 +120,7 @@ export const listForCurrentUser = query({
             },
         lastMessageText: conv.lastMessageText,
         lastMessageAt: conv.lastMessageAt ?? conv.createdAt,
+        unreadCount,
       };
     });
     result.sort((a, b) => b.lastMessageAt - a.lastMessageAt);
