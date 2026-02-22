@@ -72,7 +72,7 @@ The app will run without these; add them when you need auth and Convex.
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000). Sign up or sign in, then start a conversation from the user list.
+Open [http://localhost:3002](http://localhost:3002). Sign up or sign in, then start a conversation from the user list.
 
 ### Scripts
 
@@ -125,3 +125,23 @@ No extra build step is required for Vercel; the default Next.js build is used.
 - **Vercel**: Hobby plan is free for personal use.
 - **Clerk**: Free tier includes monthly active users (MAU) and standard auth features.
 - **Convex**: Free tier includes a generous usage quota for development and small production apps.
+
+## Troubleshooting
+
+### "No auth provider found matching the given token"
+
+This means Convex is not accepting the JWT from Clerk because the **issuer** does not match. Fix it like this:
+
+1. **Get your Clerk Issuer URL**  
+   In [Clerk Dashboard](https://dashboard.clerk.com) → **JWT Templates** → open the **convex** template (create one from the Convex preset if needed; the name must be `convex`). Copy the **Issuer** URL (e.g. `https://your-app-12.clerk.accounts.dev`).
+
+2. **Set it in Convex**  
+   In [Convex Dashboard](https://dashboard.convex.dev) → your project → **Settings** → **Environment Variables**, set:
+   - **Name:** `CLERK_JWT_ISSUER_DOMAIN`
+   - **Value:** the Issuer URL you copied (exactly, including `https://`)
+
+3. **Sync Convex**  
+   Run `npx convex dev` (or `npx convex deploy`) so the backend picks up the new variable.
+
+4. **Use the same Clerk app**  
+   The Clerk app whose API keys are in your `.env.local` must be the same app that has that Issuer URL. If you use a different Clerk application, copy that app’s Issuer from its JWT template and set that as `CLERK_JWT_ISSUER_DOMAIN` in Convex.

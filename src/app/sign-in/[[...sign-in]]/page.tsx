@@ -1,17 +1,30 @@
-import { SignIn } from "@clerk/nextjs";
+"use client";
 
-export default function SignInPage() {
+import { SignedIn, SignedOut, SignIn, useAuth } from "@clerk/nextjs";
+import { useEffect } from "react";
+
+export default function Page() {
+  const { getToken } = useAuth();
+
+  useEffect(() => {
+    const run = async () => {
+      const token = await getToken({ template: "convex" });
+      if (!token) return;
+      console.log("JWT PAYLOAD:", JSON.parse(atob(token.split(".")[1])));
+    };
+
+    run();
+  }, [getToken]);
+
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4">
-      <SignIn
-        signUpUrl="/sign-up"
-        afterSignInUrl="/"
-        appearance={{
-          elements: {
-            rootBox: "mx-auto",
-          },
-        }}
-      />
-    </main>
+    <>
+      <SignedOut>
+        <SignIn />
+      </SignedOut>
+
+      <SignedIn>
+        <div>You are signed in. Check console.</div>
+      </SignedIn>
+    </>
   );
 }

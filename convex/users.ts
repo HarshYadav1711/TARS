@@ -58,6 +58,8 @@ export const getCurrent = query({
   args: {},
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
+    // TODO: remove after verification
+    console.log("[auth debug] getUserIdentity:", identity ? "present" : "null");
     if (!identity) return null;
     return await ctx.db
       .query("users")
