@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { useRef, useEffect, useState } from "react";
+import { formatMessageTimestamp } from "@/lib/format";
 
 export default function ChatPage() {
   const params = useParams();
@@ -24,7 +25,7 @@ export default function ChatPage() {
   const sendMessage = useMutation(api.messages.send);
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
-  const listEndRef = useRef<HTMLDivElement>(null);
+  const listEndRef = useRef<HTMLLIElement>(null);
 
   useEffect(() => {
     listEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -83,12 +84,12 @@ export default function ChatPage() {
             No messages yet. Say hello.
           </li>
         )}
-        {messages.map((msg: { _id: string; authorClerkId: string; body: string }) => {
+        {messages.map((msg: { _id: string; authorClerkId: string; body: string; createdAt: number }) => {
           const isMe = msg.authorClerkId === myClerkId;
           return (
             <li
               key={msg._id}
-              className={`flex ${isMe ? "justify-end" : "justify-start"}`}
+              className={`flex flex-col gap-0.5 ${isMe ? "items-end" : "items-start"}`}
             >
               <div
                 className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
@@ -99,10 +100,16 @@ export default function ChatPage() {
               >
                 <p className="whitespace-pre-wrap break-words">{msg.body}</p>
               </div>
+              <span
+                className={`text-xs text-muted-foreground ${isMe ? "mr-1" : "ml-1"}`}
+                aria-hidden
+              >
+                {formatMessageTimestamp(msg.createdAt)}
+              </span>
             </li>
           );
         })}
-        <div ref={listEndRef} />
+        <li ref={listEndRef} aria-hidden className="list-none" />
       </ul>
 
       <form
