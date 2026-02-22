@@ -80,8 +80,15 @@ export default function ChatPage() {
 
       <ul className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
         {messages.length === 0 && (
-          <li className="py-4 text-center text-sm text-muted-foreground">
-            No messages yet. Say hello.
+          <li className="flex flex-1 flex-col items-center justify-center py-12">
+            <div className="flex max-w-xs flex-col gap-2 rounded-lg border border-border bg-muted/30 px-6 py-8 text-center">
+              <p className="text-sm font-medium text-foreground">
+                No messages in this conversation yet
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Send a message below to start the conversation.
+              </p>
+            </div>
           </li>
         )}
         {messages.map((msg: { _id: string; authorClerkId: string; body: string; createdAt: number }) => {

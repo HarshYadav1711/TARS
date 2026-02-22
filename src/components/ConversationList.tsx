@@ -43,16 +43,21 @@ export function ConversationList() {
 
   if (conversations.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-3 py-12 text-center">
-        <span className="text-sm text-muted-foreground">
-          No conversations yet.
-        </span>
-        <Link
-          href="/users"
-          className="text-sm font-medium text-primary hover:underline"
-        >
-          Start a chat
-        </Link>
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
+        <div className="flex max-w-sm flex-col gap-2 rounded-lg border border-border bg-muted/30 px-6 py-8">
+          <p className="text-sm font-medium text-foreground">
+            No conversations yet
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Choose someone from the user list to start your first chat.
+          </p>
+          <Link
+            href="/users"
+            className="mt-2 inline-flex justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+          >
+            Find someone to message
+          </Link>
+        </div>
       </div>
     );
   }

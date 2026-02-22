@@ -55,8 +55,15 @@ export function UserList() {
 
   if (users.length === 0) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
-        <span className="text-sm">No other users yet.</span>
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
+        <div className="flex max-w-sm flex-col gap-2 rounded-lg border border-border bg-muted/30 px-6 py-8">
+          <p className="text-sm font-medium text-foreground">
+            No other users yet
+          </p>
+          <p className="text-sm text-muted-foreground">
+            You’re the only one here so far. Invite others to sign up, or check back later.
+          </p>
+        </div>
       </div>
     );
   }
@@ -75,8 +82,15 @@ export function UserList() {
       </div>
       <ul className="flex-1 overflow-y-auto">
         {filtered.length === 0 ? (
-          <li className="py-8 text-center text-sm text-muted-foreground">
-            No users match your search.
+          <li className="flex flex-col items-center justify-center px-4 py-12">
+            <div className="flex max-w-sm flex-col gap-2 rounded-lg border border-border bg-muted/30 px-6 py-8 text-center">
+              <p className="text-sm font-medium text-foreground">
+                No users match your search
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Try a different name, or clear the search box to see everyone.
+              </p>
+            </div>
           </li>
         ) : (
           filtered.map((user) => (
