@@ -49,8 +49,18 @@ export function UserList() {
 
   if (users === undefined) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center gap-2 py-12 text-muted-foreground">
-        <span className="text-sm">Loading users…</span>
+      <div className="flex flex-1 flex-col">
+        <div className="border-b border-border px-4 py-2">
+          <div className="h-10 w-full animate-pulse rounded-md bg-muted" />
+        </div>
+        <ul className="flex-1 space-y-1 p-2">
+          {[1, 2, 3, 4, 5].map((i) => (
+            <li key={i} className="flex gap-3 px-2 py-3">
+              <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-muted" />
+              <div className="h-4 w-32 animate-pulse rounded bg-muted" />
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }

@@ -33,6 +33,7 @@ export default function ChatPage() {
   );
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState<string | null>(null);
   const [isNearBottom, setIsNearBottom] = useState(true);
   const listEndRef = useRef<HTMLLIElement>(null);
   const scrollContainerRef = useRef<HTMLUListElement>(null);
@@ -102,6 +103,7 @@ export default function ChatPage() {
     e.preventDefault();
     const text = body.trim();
     if (!text || !conversationId || sending) return;
+    setSendError(null);
     if (stopTypingTimeoutRef.current) {
       clearTimeout(stopTypingTimeoutRef.current);
       stopTypingTimeoutRef.current = null;
@@ -115,6 +117,9 @@ export default function ChatPage() {
     setBody("");
     try {
       await sendMessage({ conversationId, body: text });
+    } catch {
+      setSendError("Couldn't send. Try again.");
+      setBody(text);
     } finally {
       setSending(false);
     }
@@ -122,8 +127,13 @@ export default function ChatPage() {
 
   if (data === undefined || messages === undefined) {
     return (
-      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center">
-        <span className="text-sm text-muted-foreground">Loading…</span>
+      <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
+        <div className="flex shrink-0 items-center border-b border-border px-4 py-2">
+          <div className="h-5 w-32 animate-pulse rounded bg-muted" />
+        </div>
+        <div className="flex flex-1 items-center justify-center p-4">
+          <span className="text-sm text-muted-foreground">Loading…</span>
+        </div>
       </div>
     );
   }
@@ -223,12 +233,21 @@ export default function ChatPage() {
 
       <form
         onSubmit={handleSubmit}
-        className="flex shrink-0 gap-2 border-t border-border p-4"
+        className="flex shrink-0 flex-col gap-1 border-t border-border p-4"
       >
+        {sendError && (
+          <p className="text-xs text-destructive" role="alert">
+            {sendError}
+          </p>
+        )}
+        <div className="flex gap-2">
         <input
           type="text"
           value={body}
-          onChange={(e) => setBody(e.target.value)}
+          onChange={(e) => {
+            setBody(e.target.value);
+            if (sendError) setSendError(null);
+          }}
           placeholder="Type a message…"
           className="min-w-0 flex-1 rounded-md border border-input bg-background px-3 py-2 text-sm outline-none placeholder:text-muted-foreground focus:ring-2 focus:ring-ring"
           disabled={sending}
@@ -239,8 +258,9 @@ export default function ChatPage() {
           disabled={sending || !body.trim()}
           className="shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
         >
-          Send
+          {sending ? "Sending…" : "Send"}
         </button>
+        </div>
       </form>
     </div>
   );

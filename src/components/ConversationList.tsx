@@ -42,8 +42,21 @@ export function ConversationList() {
 
   if (conversations === undefined) {
     return (
-      <div className="flex flex-1 flex-col items-center justify-center py-12 text-muted-foreground">
-        <span className="text-sm">Loading…</span>
+      <div className="flex flex-1 flex-col">
+        <div className="border-b border-border px-4 py-2">
+          <div className="h-9 w-24 animate-pulse rounded-md bg-muted" />
+        </div>
+        <ul className="flex-1 space-y-1 p-2">
+          {[1, 2, 3, 4].map((i) => (
+            <li key={i} className="flex gap-3 px-2 py-3">
+              <div className="h-10 w-10 shrink-0 animate-pulse rounded-full bg-muted" />
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="h-4 w-24 animate-pulse rounded bg-muted" />
+                <div className="h-3 w-32 animate-pulse rounded bg-muted" />
+              </div>
+            </li>
+          ))}
+        </ul>
       </div>
     );
   }
