@@ -4,6 +4,7 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
+import { OnlineIndicator } from "./OnlineIndicator";
 
 type User = {
   _id: string;
@@ -12,6 +13,7 @@ type User = {
   name: string;
   imageUrl?: string;
   updatedAt: number;
+  lastSeenAt?: number;
 };
 
 function filterUsers(users: User[], search: string): User[] {
@@ -118,8 +120,11 @@ export function UserList() {
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
-                <span className="truncate text-sm font-medium text-foreground">
-                  {user.name}
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <OnlineIndicator lastSeenAt={user.lastSeenAt} />
+                  <span className="truncate text-sm font-medium text-foreground">
+                    {user.name}
+                  </span>
                 </span>
                 {loadingId === user.clerkId && (
                   <span className="ml-auto text-xs text-muted-foreground">

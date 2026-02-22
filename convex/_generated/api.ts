@@ -9,6 +9,7 @@ export const api = {
     list: undefined as any,
     listExceptCurrent: undefined as any,
     getCurrent: undefined as any,
+    heartbeat: undefined as any,
   },
   conversations: {
     getOrCreate: undefined as any,

@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { ConversationList } from "./ConversationList";
+import { HeartbeatWhenAuthenticated } from "./Heartbeat";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -9,6 +10,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] min-h-0">
+      <HeartbeatWhenAuthenticated />
       <aside className="hidden w-80 shrink-0 flex-col border-r border-border md:flex">
         <ConversationList />
       </aside>

@@ -3,10 +3,16 @@
 import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Link from "next/link";
+import { OnlineIndicator } from "./OnlineIndicator";
 
 type ConversationItem = {
   _id: string;
-  otherUser: { clerkId: string; name: string; imageUrl?: string };
+  otherUser: {
+    clerkId: string;
+    name: string;
+    imageUrl?: string;
+    lastSeenAt?: number;
+  };
   lastMessageText?: string;
   lastMessageAt: number;
 };
@@ -80,8 +86,11 @@ export function ConversationList() {
               className="flex flex-col gap-0.5 border-b border-border px-4 py-3 transition-colors hover:bg-muted/50"
             >
               <div className="flex items-center justify-between gap-2">
-                <span className="truncate text-sm font-medium text-foreground">
-                  {conv.otherUser.name}
+                <span className="flex min-w-0 items-center gap-1.5">
+                  <OnlineIndicator lastSeenAt={conv.otherUser.lastSeenAt} />
+                  <span className="truncate text-sm font-medium text-foreground">
+                    {conv.otherUser.name}
+                  </span>
                 </span>
                 <span className="shrink-0 text-xs text-muted-foreground">
                   {formatTime(conv.lastMessageAt)}

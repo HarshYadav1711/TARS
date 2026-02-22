@@ -7,6 +7,7 @@ export default defineSchema({
     name: v.string(),
     imageUrl: v.optional(v.string()),
     updatedAt: v.number(),
+    lastSeenAt: v.optional(v.number()),
   }).index("by_clerk_id", ["clerkId"]),
 
   conversations: defineTable({

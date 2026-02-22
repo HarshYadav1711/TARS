@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { useRef, useEffect, useState } from "react";
 import { formatMessageTimestamp } from "@/lib/format";
+import { OnlineIndicator } from "@/components/OnlineIndicator";
 
 export default function ChatPage() {
   const params = useParams();
@@ -75,7 +76,10 @@ export default function ChatPage() {
         >
           ←
         </Link>
-        <span className="font-medium text-foreground">{otherUser.name}</span>
+        <span className="flex items-center gap-1.5 font-medium text-foreground">
+          <OnlineIndicator lastSeenAt={otherUser.lastSeenAt} />
+          {otherUser.name}
+        </span>
       </div>
 
       <ul className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">

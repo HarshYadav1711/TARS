@@ -22,6 +22,7 @@ export const updateOrCreate = mutation({
         name: args.name,
         imageUrl: args.imageUrl,
         updatedAt: now,
+        lastSeenAt: now,
       });
       return existing._id;
     }
@@ -30,6 +31,7 @@ export const updateOrCreate = mutation({
       name: args.name,
       imageUrl: args.imageUrl,
       updatedAt: now,
+      lastSeenAt: now,
     });
   },
 });
@@ -61,5 +63,22 @@ export const getCurrent = query({
       .query("users")
       .withIndex("by_clerk_id", (q) => q.eq("clerkId", identity.subject))
       .unique();
+  },
+});
+
+export const heartbeat = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return;
+    const clerkId = identity.subject;
+    const now = Date.now();
+    const existing = await ctx.db
+      .query("users")
+      .withIndex("by_clerk_id", (q) => q.eq("clerkId", clerkId))
+      .unique();
+    if (existing) {
+      await ctx.db.patch(existing._id, { lastSeenAt: now });
+    }
   },
 });

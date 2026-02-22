@@ -62,8 +62,12 @@ export const getWithOtherUser = query({
     return {
       conversation: conv,
       otherUser: otherUser
-        ? { name: otherUser.name, imageUrl: otherUser.imageUrl }
-        : { name: "Unknown", imageUrl: undefined },
+        ? {
+            name: otherUser.name,
+            imageUrl: otherUser.imageUrl,
+            lastSeenAt: otherUser.lastSeenAt,
+          }
+        : { name: "Unknown", imageUrl: undefined, lastSeenAt: undefined },
     };
   },
 });
@@ -90,8 +94,14 @@ export const listForCurrentUser = query({
               clerkId: otherUser.clerkId,
               name: otherUser.name,
               imageUrl: otherUser.imageUrl,
+              lastSeenAt: otherUser.lastSeenAt,
             }
-          : { clerkId: otherClerkId, name: "Unknown", imageUrl: undefined },
+          : {
+              clerkId: otherClerkId,
+              name: "Unknown",
+              imageUrl: undefined,
+              lastSeenAt: undefined,
+            },
         lastMessageText: conv.lastMessageText,
         lastMessageAt: conv.lastMessageAt ?? conv.createdAt,
       };
