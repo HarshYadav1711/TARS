@@ -2,13 +2,13 @@
 
 import { Authenticated, Unauthenticated } from "convex/react";
 import Link from "next/link";
-import { ConversationList } from "@/components/ConversationList";
+import { SelectConversationPlaceholder } from "@/components/SelectConversationPlaceholder";
 
 export default function Home() {
   return (
-    <main className="flex min-h-[calc(100vh-3.5rem)] flex-col">
+    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
       <Authenticated>
-        <ConversationList />
+        <SelectConversationPlaceholder />
       </Authenticated>
       <Unauthenticated>
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
@@ -32,6 +32,6 @@ export default function Home() {
           </div>
         </div>
       </Unauthenticated>
-    </main>
+    </div>
   );
 }

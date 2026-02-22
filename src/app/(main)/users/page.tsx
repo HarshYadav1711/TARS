@@ -6,7 +6,7 @@ import { UserList } from "@/components/UserList";
 
 export default function UsersPage() {
   return (
-    <main className="flex min-h-[calc(100vh-3.5rem)] flex-col">
+    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
       <Authenticated>
         <div className="border-b border-border px-4 py-2">
           <Link
@@ -29,6 +29,6 @@ export default function UsersPage() {
           </Link>
         </div>
       </Unauthenticated>
-    </main>
+    </div>
   );
 }

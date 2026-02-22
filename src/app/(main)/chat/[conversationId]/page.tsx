@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation } from "convex/react";
-import { api } from "../../../../convex/_generated/api";
+import { api } from "../../../../../convex/_generated/api";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
@@ -46,31 +46,31 @@ export default function ChatPage() {
 
   if (data === undefined || messages === undefined) {
     return (
-      <main className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center">
+      <div className="flex min-h-[calc(100vh-3.5rem)] items-center justify-center">
         <span className="text-sm text-muted-foreground">Loading…</span>
-      </main>
+      </div>
     );
   }
 
   if (data === null) {
     return (
-      <main className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center gap-4 p-8">
+      <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center gap-4 p-8">
         <p className="text-muted-foreground">Conversation not found.</p>
         <Link href="/" className="text-sm font-medium text-primary hover:underline">
           Back to conversations
         </Link>
-      </main>
+      </div>
     );
   }
 
   const { otherUser } = data;
 
   return (
-    <main className="flex min-h-[calc(100vh-3.5rem)] flex-col">
+    <div className="flex min-h-[calc(100vh-3.5rem)] flex-col">
       <div className="flex shrink-0 items-center border-b border-border px-4 py-2">
         <Link
           href="/"
-          className="mr-3 text-muted-foreground hover:text-foreground"
+          className="mr-3 text-muted-foreground hover:text-foreground md:hidden"
           aria-label="Back to conversations"
         >
           ←
@@ -140,6 +140,6 @@ export default function ChatPage() {
           Send
         </button>
       </form>
-    </main>
+    </div>
   );
 }
