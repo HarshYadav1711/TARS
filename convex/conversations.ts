@@ -43,3 +43,60 @@ export const get = query({
     return conv;
   },
 });
+
+export const getWithOtherUser = query({
+  args: { conversationId: v.id("conversations") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return null;
+    const conv = await ctx.db.get(args.conversationId);
+    if (!conv) return null;
+    const myClerkId = identity.subject;
+    if (conv.participant1 !== myClerkId && conv.participant2 !== myClerkId) {
+      return null;
+    }
+    const otherClerkId =
+      conv.participant1 === myClerkId ? conv.participant2 : conv.participant1;
+    const users = await ctx.db.query("users").collect();
+    const otherUser = users.find((u) => u.clerkId === otherClerkId);
+    return {
+      conversation: conv,
+      otherUser: otherUser
+        ? { name: otherUser.name, imageUrl: otherUser.imageUrl }
+        : { name: "Unknown", imageUrl: undefined },
+    };
+  },
+});
+
+export const listForCurrentUser = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+    const myClerkId = identity.subject;
+    const all = await ctx.db.query("conversations").collect();
+    const mine = all.filter(
+      (c) => c.participant1 === myClerkId || c.participant2 === myClerkId
+    );
+    const users = await ctx.db.query("users").collect();
+    const result = mine.map((conv) => {
+      const otherClerkId =
+        conv.participant1 === myClerkId ? conv.participant2 : conv.participant1;
+      const otherUser = users.find((u) => u.clerkId === otherClerkId);
+      return {
+        _id: conv._id,
+        otherUser: otherUser
+          ? {
+              clerkId: otherUser.clerkId,
+              name: otherUser.name,
+              imageUrl: otherUser.imageUrl,
+            }
+          : { clerkId: otherClerkId, name: "Unknown", imageUrl: undefined },
+        lastMessageText: conv.lastMessageText,
+        lastMessageAt: conv.lastMessageAt ?? conv.createdAt,
+      };
+    });
+    result.sort((a, b) => b.lastMessageAt - a.lastMessageAt);
+    return result;
+  },
+});

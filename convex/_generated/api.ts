@@ -13,5 +13,11 @@ export const api = {
   conversations: {
     getOrCreate: undefined as any,
     get: undefined as any,
+    getWithOtherUser: undefined as any,
+    listForCurrentUser: undefined as any,
+  },
+  messages: {
+    send: undefined as any,
+    list: undefined as any,
   },
 };

@@ -2,13 +2,13 @@
 
 import { Authenticated, Unauthenticated } from "convex/react";
 import Link from "next/link";
-import { UserList } from "@/components/UserList";
+import { ConversationList } from "@/components/ConversationList";
 
 export default function Home() {
   return (
     <main className="flex min-h-[calc(100vh-3.5rem)] flex-col">
       <Authenticated>
-        <UserList />
+        <ConversationList />
       </Authenticated>
       <Unauthenticated>
         <div className="flex flex-1 flex-col items-center justify-center gap-4 p-8 text-center">
