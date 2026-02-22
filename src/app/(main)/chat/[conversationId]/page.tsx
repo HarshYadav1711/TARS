@@ -33,17 +33,44 @@ export default function ChatPage() {
   );
   const [body, setBody] = useState("");
   const [sending, setSending] = useState(false);
+  const [isNearBottom, setIsNearBottom] = useState(true);
   const listEndRef = useRef<HTMLLIElement>(null);
+  const scrollContainerRef = useRef<HTMLUListElement>(null);
   const stopTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const setTypingTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const NEAR_BOTTOM_THRESHOLD_PX = 80;
+
+  function checkNearBottom() {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const near = scrollHeight - scrollTop - clientHeight <= NEAR_BOTTOM_THRESHOLD_PX;
+    setIsNearBottom(near);
+  }
+
+  function scrollToBottom() {
+    listEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    setIsNearBottom(true);
+  }
 
   useEffect(() => {
     if (conversationId) markRead({ conversationId }).catch(() => {});
   }, [conversationId, markRead]);
 
   useEffect(() => {
-    listEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages?.length]);
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.addEventListener("scroll", checkNearBottom, { passive: true });
+    return () => el.removeEventListener("scroll", checkNearBottom);
+  }, []);
+
+  useEffect(() => {
+    if (messages === undefined) return;
+    if (isNearBottom) {
+      listEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages?.length, isNearBottom]);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -134,8 +161,12 @@ export default function ChatPage() {
         </span>
       </div>
 
-      <ul className="flex flex-1 flex-col gap-2 overflow-y-auto p-4">
-        {otherIsTyping && (
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <ul
+          ref={scrollContainerRef}
+          className="flex flex-1 flex-col gap-2 overflow-y-auto p-4"
+        >
+          {otherIsTyping && (
           <li className="text-xs text-muted-foreground">
             {otherUser.name} is typing…
           </li>
@@ -177,8 +208,18 @@ export default function ChatPage() {
             </li>
           );
         })}
-        <li ref={listEndRef} aria-hidden className="list-none" />
-      </ul>
+          <li ref={listEndRef} aria-hidden className="list-none" />
+        </ul>
+        {!isNearBottom && messages.length > 0 && (
+          <button
+            type="button"
+            onClick={scrollToBottom}
+            className="absolute bottom-2 left-4 right-4 rounded-md bg-primary py-2 text-sm font-medium text-primary-foreground shadow hover:bg-primary/90"
+          >
+            New messages
+          </button>
+        )}
+      </div>
 
       <form
         onSubmit={handleSubmit}
