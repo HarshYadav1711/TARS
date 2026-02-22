@@ -41,6 +41,17 @@ export const list = query({
   },
 });
 
+export const listExceptCurrent = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) return [];
+    const myClerkId = identity.subject;
+    const all = await ctx.db.query("users").collect();
+    return all.filter((u) => u.clerkId !== myClerkId);
+  },
+});
+
 export const getCurrent = query({
   args: {},
   handler: async (ctx) => {

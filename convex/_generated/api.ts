@@ -7,6 +7,11 @@ export const api = {
   users: {
     updateOrCreate: undefined as any,
     list: undefined as any,
+    listExceptCurrent: undefined as any,
     getCurrent: undefined as any,
+  },
+  conversations: {
+    getOrCreate: undefined as any,
+    get: undefined as any,
   },
 };
