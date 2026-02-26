@@ -4,7 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Link from "next/link";
 import { OnlineIndicator } from "./OnlineIndicator";
-import { formatTimestamp } from "@/lib/utils/formatTimestamp";
+import { formatTimestamp } from "@/lib/formatTimestamp";
 
 type ConversationItem = {
   _id: string;
