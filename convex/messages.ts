@@ -18,15 +18,20 @@ export const send = mutation({
     const body = args.body.trim();
     if (!body) throw new Error("Message cannot be empty");
     const now = Date.now();
-    await ctx.db.insert("messages", {
+    const messageId = await ctx.db.insert("messages", {
       conversationId: args.conversationId,
+      senderId: authorClerkId,
       authorClerkId,
+      text: body,
       body,
       createdAt: now,
+      isDeleted: false,
     });
     const preview =
       body.length > 80 ? body.slice(0, 77) + "..." : body;
     await ctx.db.patch(args.conversationId, {
+      lastMessageId: messageId,
+      lastMessageTime: now,
       lastMessageText: preview,
       lastMessageAt: now,
     });

@@ -24,7 +24,35 @@ export const getOrCreate = mutation({
     return await ctx.db.insert("conversations", {
       participant1: p1,
       participant2: p2,
+      participantIds: [p1, p2],
       createdAt: now,
+      lastMessageTime: now,
+    });
+  },
+});
+
+export const getOrCreateConversation = mutation({
+  args: { otherUserClerkId: v.string() },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+    const myClerkId = identity.subject;
+    if (args.otherUserClerkId === myClerkId) {
+      throw new Error("Cannot start conversation with yourself");
+    }
+    const [p1, p2] = sortedParticipants(myClerkId, args.otherUserClerkId);
+    const all = await ctx.db.query("conversations").collect();
+    const existing = all.find(
+      (c) => c.participant1 === p1 && c.participant2 === p2
+    );
+    if (existing) return existing._id;
+    const now = Date.now();
+    return await ctx.db.insert("conversations", {
+      participant1: p1,
+      participant2: p2,
+      participantIds: [p1, p2],
+      createdAt: now,
+      lastMessageTime: now,
     });
   },
 });
@@ -66,12 +94,14 @@ export const getWithOtherUser = query({
             clerkId: otherUser.clerkId,
             name: otherUser.name,
             imageUrl: otherUser.imageUrl,
+            isOnline: otherUser.isOnline,
             lastSeenAt: otherUser.lastSeenAt,
           }
         : {
             clerkId: otherClerkId,
             name: "Unknown",
             imageUrl: undefined,
+            isOnline: false,
             lastSeenAt: undefined,
           },
     };
@@ -99,10 +129,17 @@ export const listForCurrentUser = query({
         (r) => r.conversationId === conv._id && r.clerkId === myClerkId
       );
       const lastReadAt = read?.lastReadAt ?? 0;
-      const convMessages = messages.filter(
-        (m) => m.conversationId === conv._id && m.authorClerkId !== myClerkId && m.createdAt > lastReadAt
-      );
-      const unreadCount = convMessages.length;
+      const convMessages = messages
+        .filter((m) => m.conversationId === conv._id)
+        .sort((a, b) => a.createdAt - b.createdAt);
+      const seenIndex = read?.lastSeenMessageId
+        ? convMessages.findIndex((m) => m._id === read.lastSeenMessageId)
+        : -1;
+      const unreadCount = convMessages.filter(
+        (m, idx) =>
+          m.authorClerkId !== myClerkId &&
+          (seenIndex >= 0 ? idx > seenIndex : m.createdAt > lastReadAt)
+      ).length;
       return {
         _id: conv._id,
         otherUser: otherUser
@@ -110,16 +147,18 @@ export const listForCurrentUser = query({
               clerkId: otherUser.clerkId,
               name: otherUser.name,
               imageUrl: otherUser.imageUrl,
+              isOnline: otherUser.isOnline,
               lastSeenAt: otherUser.lastSeenAt,
             }
           : {
               clerkId: otherClerkId,
               name: "Unknown",
               imageUrl: undefined,
+              isOnline: false,
               lastSeenAt: undefined,
             },
         lastMessageText: conv.lastMessageText,
-        lastMessageAt: conv.lastMessageAt ?? conv.createdAt,
+        lastMessageAt: conv.lastMessageAt ?? conv.lastMessageTime ?? conv.createdAt,
         unreadCount,
       };
     });

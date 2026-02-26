@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
 
 export function SyncProfile() {
   const { user, isLoaded } = useUser();
-  const updateOrCreate = useMutation(api.users.updateOrCreate);
+  const upsertUser = useMutation(api.users.upsertUser);
   const synced = useRef(false);
 
   useEffect(() => {
@@ -15,10 +15,11 @@ export function SyncProfile() {
     synced.current = true;
     const name = user.fullName ?? user.primaryEmailAddress?.emailAddress ?? "User";
     const imageUrl = user.imageUrl ?? undefined;
-    updateOrCreate({ name, imageUrl }).catch(() => {
+    const email = user.primaryEmailAddress?.emailAddress ?? undefined;
+    upsertUser({ name, imageUrl, email }).catch(() => {
       synced.current = false;
     });
-  }, [isLoaded, user, updateOrCreate]);
+  }, [isLoaded, user, upsertUser]);
 
   return null;
 }

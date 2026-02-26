@@ -8,12 +8,15 @@ import { OnlineIndicator } from "./OnlineIndicator";
 
 type User = {
   _id: string;
-  _creationTime: number;
   clerkId: string;
   name: string;
   imageUrl?: string;
+  isOnline?: boolean;
   updatedAt: number;
   lastSeenAt?: number;
+  conversationId?: string;
+  lastMessageText?: string;
+  lastMessageAt?: number;
 };
 
 function filterUsers(users: User[], search: string): User[] {
@@ -24,8 +27,8 @@ function filterUsers(users: User[], search: string): User[] {
 
 export function UserList() {
   const router = useRouter();
-  const users = useQuery(api.users.listExceptCurrent);
-  const getOrCreate = useMutation(api.conversations.getOrCreate);
+  const users = useQuery(api.users.getUsers);
+  const getOrCreate = useMutation(api.conversations.getOrCreateConversation);
   const [search, setSearch] = useState("");
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
@@ -130,10 +133,21 @@ export function UserList() {
                     {user.name.charAt(0).toUpperCase()}
                   </span>
                 )}
-                <span className="flex min-w-0 items-center gap-1.5">
-                  <OnlineIndicator lastSeenAt={user.lastSeenAt} />
-                  <span className="truncate text-sm font-medium text-foreground">
-                    {user.name}
+                <span className="min-w-0 flex-1">
+                  <span className="flex min-w-0 items-center gap-1.5">
+                    <OnlineIndicator
+                      isOnlineValue={user.isOnline}
+                      lastSeenAt={user.lastSeenAt}
+                    />
+                    <span className="truncate text-sm font-medium text-foreground">
+                      {user.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {user.isOnline ? "Online" : "Offline"}
+                    </span>
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">
+                    {user.lastMessageText ?? "No messages yet"}
                   </span>
                 </span>
                 {loadingId === user.clerkId && (

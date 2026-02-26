@@ -6,21 +6,28 @@ import { useEffect, useState } from "react";
 const RECHECK_MS = 15_000;
 
 type Props = {
+  isOnlineValue?: boolean;
   lastSeenAt: number | undefined;
   className?: string;
 };
 
-export function OnlineIndicator({ lastSeenAt, className = "" }: Props) {
+export function OnlineIndicator({
+  isOnlineValue,
+  lastSeenAt,
+  className = "",
+}: Props) {
   const [, setTick] = useState(0);
   useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), RECHECK_MS);
     return () => clearInterval(id);
   }, []);
-  if (!isOnline(lastSeenAt)) return null;
+  const online = isOnlineValue ?? isOnline(lastSeenAt);
   return (
     <span
-      className={`inline-block h-2 w-2 shrink-0 rounded-full bg-green-500 ${className}`}
-      title="Online"
+      className={`inline-block h-2 w-2 shrink-0 rounded-full ${
+        online ? "bg-green-500" : "bg-gray-400"
+      } ${className}`}
+      title={online ? "Online" : "Offline"}
       aria-hidden
     />
   );

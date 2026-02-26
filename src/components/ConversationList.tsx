@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import Link from "next/link";
 import { OnlineIndicator } from "./OnlineIndicator";
+import { formatTimestamp } from "@/lib/utils/formatTimestamp";
 
 type ConversationItem = {
   _id: string;
@@ -11,31 +12,13 @@ type ConversationItem = {
     clerkId: string;
     name: string;
     imageUrl?: string;
+    isOnline?: boolean;
     lastSeenAt?: number;
   };
   lastMessageText?: string;
   lastMessageAt: number;
   unreadCount: number;
 };
-
-function formatTime(ts: number): string {
-  const d = new Date(ts);
-  const now = new Date();
-  const sameDay =
-    d.getDate() === now.getDate() &&
-    d.getMonth() === now.getMonth() &&
-    d.getFullYear() === now.getFullYear();
-  if (sameDay) {
-    return d.toLocaleTimeString(undefined, {
-      hour: "numeric",
-      minute: "2-digit",
-    });
-  }
-  return d.toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-  });
-}
 
 export function ConversationList() {
   const conversations = useQuery(api.conversations.listForCurrentUser);
@@ -66,7 +49,7 @@ export function ConversationList() {
       <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-12 text-center">
         <div className="flex max-w-sm flex-col gap-2 rounded-lg border border-border bg-muted/30 px-6 py-8">
           <p className="text-sm font-medium text-foreground">
-            No conversations yet
+            Start a conversation
           </p>
           <p className="text-sm text-muted-foreground">
             Choose someone from the user list to start your first chat.
@@ -101,7 +84,10 @@ export function ConversationList() {
             >
               <div className="flex items-center justify-between gap-2">
                 <span className="flex min-w-0 items-center gap-1.5">
-                  <OnlineIndicator lastSeenAt={conv.otherUser.lastSeenAt} />
+                  <OnlineIndicator
+                    isOnlineValue={conv.otherUser.isOnline}
+                    lastSeenAt={conv.otherUser.lastSeenAt}
+                  />
                   <span className="truncate text-sm font-medium text-foreground">
                     {conv.otherUser.name}
                   </span>
@@ -115,7 +101,7 @@ export function ConversationList() {
                   )}
                 </span>
                 <span className="shrink-0 text-xs text-muted-foreground">
-                  {formatTime(conv.lastMessageAt)}
+                  {formatTimestamp(conv.lastMessageAt)}
                 </span>
               </div>
               {conv.lastMessageText ? (
